@@ -25,21 +25,49 @@ function Write-Warn {
 try {
     Write-Step "[1/5] Checking prerequisites..."
     
-    $pythonCmd = ""
-    
-    try {
-        $output = py -3 --version 2>&1
-        $pythonCmd = "py -3"
-        Write-Host "  Python: $output"
-    } catch {
-        try {
-            $output = python --version 2>&1
-            $pythonCmd = "python"
-            Write-Host "  Python: $output"
-        } catch {
-            throw "Python 3.10+ not found. Install Python and ensure it is in PATH."
+    $pythonExec = $null
+    $pythonArgs = @()
+    $pythonVersion = $null
+
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+        foreach ($candidate in @('-3.11', '-3.12', '-3.10')) {
+            try {
+                $ver = (& py $candidate --version 2>&1)
+                if ($LASTEXITCODE -eq 0) {
+                    $pythonExec = 'py'
+                    $pythonArgs = @($candidate)
+                    $pythonVersion = $ver
+                    break
+                }
+            } catch { }
         }
     }
+
+    if (-not $pythonExec -and (Get-Command python -ErrorAction SilentlyContinue)) {
+        try {
+            $ver = (& python --version 2>&1)
+            if ($ver -match 'Python\s+3\.(\d+)') {
+                $minor = [int]$Matches[1]
+                if ($minor -ge 10 -and $minor -le 12) {
+                    $pythonExec = 'python'
+                    $pythonArgs = @()
+                    $pythonVersion = $ver
+                } elseif ($minor -ge 13) {
+                    throw "Detected $ver. This project requires Python 3.10-3.12 on Windows (chroma-hnswlib has no stable wheel for 3.13+). Install Python 3.11 and retry."
+                }
+            }
+        } catch {
+            if ($_.Exception.Message -like 'Detected Python*') {
+                throw
+            }
+        }
+    }
+
+    if (-not $pythonExec) {
+        throw "Python 3.10-3.12 not found. Install Python 3.11 and retry (recommended)."
+    }
+
+    Write-Host "  Python: $pythonVersion"
     
     if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
         throw "Node.js not found. Install Node 18+ and add to PATH."
@@ -56,11 +84,28 @@ try {
     }
     
     Write-Step "[2/5] Setting up Python environment..."
+
+    if (Test-Path "venv\Scripts\python.exe") {
+        $venvMinorRaw = (& venv\Scripts\python.exe -c "import sys; print(sys.version_info.minor)" 2>$null)
+        if ($LASTEXITCODE -eq 0) {
+            $venvMinor = [int]$venvMinorRaw
+            if ($venvMinor -ge 13) {
+                Write-Warn "  Existing venv uses Python 3.$venvMinor (unsupported). Recreating with Python 3.10-3.12..."
+                Remove-Item -Recurse -Force "venv"
+            }
+        }
+    }
     
     if (-not (Test-Path "venv")) {
         Write-Host "  Creating virtual environment..."
-        $cmd = "$pythonCmd -m venv venv"
-        Invoke-Expression $cmd | Out-Null
+        if ($pythonExec -eq 'py') {
+            & py @pythonArgs -m venv venv
+        } else {
+            & python -m venv venv
+        }
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to create virtual environment. Ensure selected Python installation is healthy."
+        }
     }
     
     $venvPython = "venv\Scripts\python.exe"

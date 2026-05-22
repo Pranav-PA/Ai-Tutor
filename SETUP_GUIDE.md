@@ -14,7 +14,7 @@ Three deployment options: **Docker** (easiest), **Linux/macOS local**, or **Wind
 - Docker & Docker Compose
 
 ### Local Options (Linux/macOS/Windows)
-- Python 3.10+
+- Python 3.10+ (Windows recommended: 3.11 or 3.12)
 - Node 18+ with npm
 
 ---
@@ -79,9 +79,9 @@ chmod +x run-local.sh
 
 ### Prerequisites Check
 Before running, ensure:
-1. **Python 3.10+** is installed and in PATH
+1. **Python 3.10-3.12** is installed and in PATH (**3.11 recommended**)
    - Test: `py -3 --version` or `python --version`
-   - If not in PATH: Add C:\Users\YourName\AppData\Local\Programs\Python\Python313 to PATH
+   - If not in PATH: Add your Python install directory to PATH (for example, Python311)
 2. **Node 18+** is installed and in PATH
    - Test: `node --version`
 3. **npm** is installed and in PATH
