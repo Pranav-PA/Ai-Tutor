@@ -28,6 +28,24 @@ chmod +x run-local.sh
 ./run-local.sh
 ```
 
+### Windows (PowerShell / CMD)
+
+```powershell
+# 1. Clone
+git clone https://github.com/Pranav-PA/Ai-Tutor.git
+cd Ai-Tutor
+
+# 2. Add your API key
+Copy-Item .env.example .env
+# Edit .env -> add OPENAI_API_KEY or GEMINI_API_KEY
+
+# 3. Run everything (PowerShell)
+.\run-local.ps1
+
+# or from CMD (double-click friendly)
+run-local.bat
+```
+
 This will:
 - Create a Python venv and install deps
 - Install frontend npm packages
