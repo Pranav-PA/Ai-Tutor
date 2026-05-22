@@ -67,10 +67,22 @@ try {
     if (-not (Test-Path $venvPython)) {
         throw "Virtual environment failed. Check Python installation."
     }
+
+    if (-not (Test-Path "requirements.txt")) {
+        throw "requirements.txt not found. Run from the project root directory."
+    }
     
     Write-Host "  Installing dependencies..."
-    & $venvPython -m pip install --upgrade pip -q
-    & $venvPython -m pip install -r requirements.txt -q
+    & $venvPython -m pip install --upgrade pip 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "pip upgrade failed"
+    }
+    
+    Write-Host "  Installing requirements from requirements.txt..."
+    & $venvPython -m pip install -r requirements.txt 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        throw "pip install requirements.txt failed. Check your internet connection and requirements.txt syntax."
+    }
     Write-Host "  Dependencies installed"
     
     Write-Step "[3/5] Installing frontend dependencies..."

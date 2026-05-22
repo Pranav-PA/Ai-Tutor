@@ -110,9 +110,16 @@ if [ ! -d "$ROOT_DIR/venv" ]; then
   echo "  Created virtual environment"
 fi
 
+if [ ! -f "$ROOT_DIR/requirements.txt" ]; then
+  echo -e "${RED}requirements.txt not found. Run from the project root directory.${NC}"
+  exit 1
+fi
+
 source "$ROOT_DIR/venv/bin/activate"
-pip install -q --upgrade pip
-pip install -q -r "$ROOT_DIR/requirements.txt"
+echo "  Installing pip upgrade..."
+pip install --upgrade pip || { echo -e "${RED}pip upgrade failed${NC}"; exit 1; }
+echo "  Installing requirements..."
+pip install -r "$ROOT_DIR/requirements.txt" || { echo -e "${RED}requirements install failed${NC}"; exit 1; }
 echo "  Python dependencies installed"
 
 # ─── Frontend dependencies ────────────────────────────────────────────────────
