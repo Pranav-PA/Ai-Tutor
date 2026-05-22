@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+
+  body {
+    @apply bg-dark-950 text-dark-50 antialiased;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-dark-800 border border-dark-700 rounded-xl p-6 shadow-lg;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 ease-in-out;
+  }
+
+  .btn-secondary {
+    @apply bg-dark-700 hover:bg-dark-600 text-dark-100 font-medium py-2 px-4 rounded-lg transition-all duration-200 ease-in-out border border-dark-600;
+  }
+
+  .input-field {
+    @apply bg-dark-800 border border-dark-600 rounded-lg px-4 py-2 text-dark-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-dark-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-dark-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-dark-500;
+}
+
+/* Markdown content styling */
+.prose-content h1 {
+  @apply text-2xl font-bold text-dark-50 mb-4 mt-6;
+}
+
+.prose-content h2 {
+  @apply text-xl font-semibold text-dark-100 mb-3 mt-5;
+}
+
+.prose-content h3 {
+  @apply text-lg font-medium text-dark-200 mb-2 mt-4;
+}
+
+.prose-content p {
+  @apply text-dark-300 mb-3 leading-relaxed;
+}
+
+.prose-content ul {
+  @apply list-disc list-inside mb-3 text-dark-300;
+}
+
+.prose-content ol {
+  @apply list-decimal list-inside mb-3 text-dark-300;
+}
+
+.prose-content code {
+  @apply bg-dark-700 px-1.5 py-0.5 rounded text-primary-300 text-sm;
+}
+
+.prose-content pre {
+  @apply bg-dark-800 p-4 rounded-lg mb-4 overflow-x-auto;
+}
+
+.prose-content blockquote {
+  @apply border-l-4 border-primary-500 pl-4 italic text-dark-400 my-4;
+}
