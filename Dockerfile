@@ -7,7 +7,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # Stage 1: Frontend build
 # ═══════════════════════════════════════════════════════════════════════════════
-FROM node:20-alpine AS frontend-build
+FROM node:20-bookworm-slim AS frontend-build
 
 WORKDIR /app/frontend
 
@@ -23,23 +23,23 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Stage 2: Final runtime image
+# Stage 2: Node runtime artifacts (copied into final image)
+# ═══════════════════════════════════════════════════════════════════════════════
+FROM node:20-bookworm-slim AS node-runtime
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Stage 3: Final runtime image
 # ═══════════════════════════════════════════════════════════════════════════════
 FROM python:3.11-slim
 
-# System dependencies for tesseract OCR, image processing, and node
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    tesseract-ocr \
-    libgl1 \
-    libglib2.0-0 \
-    curl \
-    supervisor \
-    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
+
+# ─── Copy Node runtime (no apt required) ─────────────────────────────────────
+COPY --from=node-runtime /usr/local/bin/node /usr/local/bin/node
+COPY --from=node-runtime /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node-runtime /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=node-runtime /usr/local/bin/corepack /usr/local/bin/corepack
+COPY --from=node-runtime /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 # ─── Python dependencies ─────────────────────────────────────────────────────
 COPY requirements.txt ./
@@ -64,16 +64,15 @@ RUN mkdir -p /app/app-data/uploads \
              /app/app-data/cache \
              /app/app-data/courses
 
-# ─── Supervisor config to run both services ──────────────────────────────────
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # ─── Expose ports ─────────────────────────────────────────────────────────────
 # Backend: 18080 | Frontend: 38173
 EXPOSE 18080 38173
 
 # ─── Health check ─────────────────────────────────────────────────────────────
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:18080/api/health || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:18080/api/health', timeout=5)"
 
-# ─── Start both services via supervisor ───────────────────────────────────────
-CMD ["supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# ─── Start script ────────────────────────────────────────────────────────────
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+CMD ["/start.sh"]
