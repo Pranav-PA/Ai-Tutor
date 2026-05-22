@@ -1,10 +1,46 @@
-# AI Semester Companion — Docker Setup
+# AI Semester Companion — Setup & Deploy
 
-Single-image Docker build. Backend (FastAPI) + Frontend (Next.js) in one container. No Postgres, no Redis — uses SQLite + ChromaDB.
+Two ways to run: **Docker** (one command) or **Local** (no Docker needed).
 
 ---
 
-## Prerequisites
+## Option A: Run Locally (no Docker)
+
+### Prerequisites
+
+- Python 3.10+
+- Node 18+ & npm
+- An OpenAI or Gemini API key
+
+### Steps
+
+```bash
+# 1. Clone
+git clone https://github.com/Pranav-PA/Ai-Tutor.git
+cd Ai-Tutor
+
+# 2. Add your API key
+cp .env.example .env
+# Edit .env → add OPENAI_API_KEY or GEMINI_API_KEY
+
+# 3. Run everything
+chmod +x run-local.sh
+./run-local.sh
+```
+
+This will:
+- Create a Python venv and install deps
+- Install frontend npm packages
+- Start backend on **http://localhost:18080**
+- Start frontend on **http://localhost:38173**
+
+Press `Ctrl+C` to stop both.
+
+---
+
+## Option B: Docker (one container)
+
+### Prerequisites
 
 - Docker & Docker Compose installed on the target machine
 - An OpenAI or Gemini API key
