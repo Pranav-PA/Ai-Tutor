@@ -101,7 +101,7 @@ build_backend() {
 # Step 2: Build Frontend
 # ==========================
 build_frontend() {
-    echo -e "${YELLOW}[2/3] Building Frontend (Static Export)...${NC}"
+    echo -e "${YELLOW}[2/3] Building Frontend (Standalone)...${NC}"
     
     cd "$FRONTEND_DIR"
     
@@ -109,14 +109,23 @@ build_frontend() {
     echo "  Installing npm dependencies..."
     npm ci --silent 2>/dev/null || npm install --silent
     
-    # Build with static export mode
-    echo "  Building Next.js static export..."
+    # Build with standalone mode
+    echo "  Building Next.js standalone server..."
     BUILD_MODE=desktop npm run build
     
-    # Copy output to desktop directory
+    # Copy standalone output to desktop directory
     echo "  Copying frontend build..."
     rm -rf "$DESKTOP_DIR/frontend-dist"
-    cp -r "$FRONTEND_DIR/out" "$DESKTOP_DIR/frontend-dist"
+    mkdir -p "$DESKTOP_DIR/frontend-dist"
+    
+    # Copy the standalone server
+    cp -r "$FRONTEND_DIR/.next/standalone/." "$DESKTOP_DIR/frontend-dist/"
+    # Copy static assets
+    cp -r "$FRONTEND_DIR/.next/static" "$DESKTOP_DIR/frontend-dist/.next/static"
+    # Copy public folder
+    if [ -d "$FRONTEND_DIR/public" ]; then
+        cp -r "$FRONTEND_DIR/public" "$DESKTOP_DIR/frontend-dist/public"
+    fi
     
     echo -e "${GREEN}  ✓ Frontend built successfully${NC}"
 }

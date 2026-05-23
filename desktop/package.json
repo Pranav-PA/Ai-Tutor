@@ -42,13 +42,17 @@
     },
     "files": [
       "electron/**/*",
-      "frontend-dist/**/*",
       "!node_modules/.cache"
     ],
     "extraResources": [
       {
         "from": "backend-dist/",
         "to": "backend",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "frontend-dist/",
+        "to": "frontend",
         "filter": ["**/*"]
       }
     ],

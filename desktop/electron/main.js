@@ -118,20 +118,14 @@ function createMainWindow() {
 /**
  * Load the frontend into the main window
  */
-async function loadFrontend(port) {
+async function loadFrontend(backendPort, frontendPort) {
   if (isDev) {
     // In dev mode, load from Next.js dev server
     mainWindow.loadURL('http://localhost:38173');
     mainWindow.webContents.openDevTools();
   } else {
-    // In production, load the static export
-    const frontendPath = path.join(__dirname, '..', 'frontend-dist', 'index.html');
-    if (fs.existsSync(frontendPath)) {
-      mainWindow.loadFile(frontendPath);
-    } else {
-      // Fallback: load from backend server
-      mainWindow.loadURL(`http://localhost:${port}`);
-    }
+    // In production, load from the Next.js standalone server
+    mainWindow.loadURL(`http://localhost:${frontendPort}`);
   }
 }
 
@@ -175,11 +169,29 @@ async function initializeApp() {
   });
 
   try {
-    const port = await backendManager.start();
-    log.info(`Backend started on port ${port}`);
+    const backendPort = await backendManager.start();
+    log.info(`Backend started on port ${backendPort}`);
+
+    // Start the frontend server (Next.js standalone)
+    let frontendPort = backendPort; // fallback
+    if (!isDev) {
+      const { FrontendManager } = require('./frontend-manager');
+      global.frontendManager = new FrontendManager({
+        resourcePath: process.resourcesPath,
+        backendPort,
+        log,
+        onStatusUpdate: (status) => {
+          if (splashWindow && !splashWindow.isDestroyed()) {
+            splashWindow.webContents.send('status-update', status);
+          }
+        }
+      });
+      frontendPort = await global.frontendManager.start();
+      log.info(`Frontend started on port ${frontendPort}`);
+    }
 
     // Load frontend
-    await loadFrontend(port);
+    await loadFrontend(backendPort, isDev ? 38173 : frontendPort);
 
     // Show main window and close splash
     mainWindow.show();
@@ -194,13 +206,13 @@ async function initializeApp() {
     }
 
   } catch (error) {
-    log.error('Failed to start backend:', error);
+    log.error('Failed to start application:', error);
     if (splashWindow && !splashWindow.isDestroyed()) {
       splashWindow.close();
     }
     dialog.showErrorBox(
       'Startup Error',
-      `Failed to start the application backend.\n\nError: ${error.message}\n\nPlease try restarting the application.`
+      `Failed to start the application.\n\nError: ${error.message}\n\nPlease try restarting the application.`
     );
     app.quit();
   }
@@ -228,6 +240,9 @@ app.on('activate', () => {
 
 app.on('before-quit', async () => {
   log.info('Application quitting...');
+  if (global.frontendManager) {
+    await global.frontendManager.stop();
+  }
   if (backendManager) {
     await backendManager.stop();
   }
@@ -278,7 +293,6 @@ ipcMain.handle('get-app-version', () => {
 ipcMain.handle('check-ollama-status', async () => {
   const ollamaUrl = store.get('ollamaUrl');
   try {
-    const { default: fetch } = await import('node-fetch');
     const response = await fetch(`${ollamaUrl}/api/tags`);
     if (response.ok) {
       const data = await response.json();
