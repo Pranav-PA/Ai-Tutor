@@ -86,7 +86,7 @@ def delete_course(course_id: int, db: Session = Depends(get_db)):
 def _course_to_response(course: Course, db: Session) -> CourseResponse:
     """Convert course model to response with computed fields."""
     doc_count = db.query(Document).filter(Document.course_id == course.id).count()
-    quiz_count = db.query(Quiz).filter(Quiz.id == course.id).count()
+    quiz_count = db.query(Quiz).filter(Quiz.course_id == course.id).count()
 
     # Calculate progress
     progress_records = db.query(Progress).filter(Progress.course_id == course.id).all()

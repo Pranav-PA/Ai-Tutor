@@ -1,7 +1,8 @@
 """Study planner routes."""
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 from datetime import datetime
+from typing import List, Optional
 
 from backend.database.connection import get_db
 from backend.database.models import Course, Progress, StudySession
@@ -62,7 +63,7 @@ def start_study_session(course_id: int, session_type: str = "learning", db: Sess
 
 
 @router.post("/session/end/{session_id}")
-def end_study_session(session_id: int, topics: list = None, db: Session = Depends(get_db)):
+def end_study_session(session_id: int, topics: Optional[List[str]] = Body(default=None), db: Session = Depends(get_db)):
     """End a study session."""
     session = db.query(StudySession).filter(StudySession.id == session_id).first()
     if not session:
@@ -80,11 +81,19 @@ def end_study_session(session_id: int, topics: list = None, db: Session = Depend
             Progress.topic == topic_name
         ).first()
         if not progress:
-            progress = Progress(course_id=session.course_id, topic=topic_name)
+            progress = Progress(
+                course_id=session.course_id,
+                topic=topic_name,
+                times_studied=0,
+                times_quizzed=0,
+                quiz_accuracy=0.0,
+                confidence=0.0,
+            )
             db.add(progress)
-        progress.times_studied += 1
+            db.flush()
+        progress.times_studied = (progress.times_studied or 0) + 1
         progress.last_studied = datetime.utcnow()
-        progress.confidence = min(1.0, progress.confidence + 0.1)
+        progress.confidence = min(1.0, (progress.confidence or 0.0) + 0.1)
 
     db.commit()
     return {

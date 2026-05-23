@@ -113,17 +113,23 @@ def submit_quiz(submission: QuizSubmit, db: Session = Depends(get_db)):
         if not progress:
             progress = Progress(
                 course_id=quiz.course_id,
-                topic=topic
+                topic=topic,
+                times_quizzed=0,
+                times_studied=0,
+                quiz_accuracy=0.0,
+                confidence=0.0,
             )
             db.add(progress)
+            db.flush()
 
-        progress.times_quizzed += 1
+        progress.times_quizzed = (progress.times_quizzed or 0) + 1
         # Update accuracy with rolling average
+        prev_accuracy = progress.quiz_accuracy or 0.0
         progress.quiz_accuracy = (
-            (progress.quiz_accuracy * (progress.times_quizzed - 1) + (score / 100))
+            (prev_accuracy * (progress.times_quizzed - 1) + (score / 100))
             / progress.times_quizzed
         )
-        progress.confidence = min(1.0, progress.quiz_accuracy * 0.7 + (progress.times_studied * 0.1))
+        progress.confidence = min(1.0, progress.quiz_accuracy * 0.7 + ((progress.times_studied or 0) * 0.1))
         progress.is_weak = progress.quiz_accuracy < 0.5
 
     db.commit()
