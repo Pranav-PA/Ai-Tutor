@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -9,7 +9,7 @@ import { learningAPI, adaptiveAPI } from '@/lib/api';
 import { useCourseStore, useLearningStore } from '@/store';
 import { FiChevronLeft, FiChevronRight, FiSend, FiCheck, FiBookOpen } from 'react-icons/fi';
 
-export default function LearningPage() {
+function LearningPageContent() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get('course') || '';
   const { currentTopic, setCurrentTopic } = useCourseStore();
@@ -289,5 +289,13 @@ export default function LearningPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LearningPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" /></div>}>
+      <LearningPageContent />
+    </Suspense>
   );
 }

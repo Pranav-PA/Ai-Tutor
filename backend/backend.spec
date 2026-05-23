@@ -7,7 +7,7 @@ that can be shipped with the Electron desktop app.
 """
 import sys
 import os
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from PyInstaller.utils.hooks import collect_data_files, collect_submodules, collect_all
 
 block_cipher = None
 
@@ -32,9 +32,27 @@ hidden_imports = [
     'chromadb',
     'chromadb.config',
     'chromadb.api',
+    'chromadb.api.models',
+    'chromadb.api.models.Collection',
+    'chromadb.api.models.CollectionCommon',
     'chromadb.db',
     'chromadb.db.impl',
     'chromadb.db.impl.sqlite',
+    # ChromaDB embedding functions - dynamically loaded via pkgutil
+    'chromadb.utils.embedding_functions',
+    'chromadb.utils.embedding_functions.onnx_mini_lm_l6_v2',
+    'chromadb.utils.embedding_functions.openai_embedding_function',
+    'chromadb.utils.embedding_functions.google_embedding_function',
+    'chromadb.utils.embedding_functions.ollama_embedding_function',
+    'chromadb.utils.embedding_functions.huggingface_embedding_function',
+    'chromadb.utils.embedding_functions.sentence_transformer_embedding_function',
+    'chromadb.utils.embedding_functions.cohere_embedding_function',
+    'chromadb.utils.embedding_functions.chroma_langchain_embedding_function',
+    # ONNX runtime - imported dynamically by chromadb
+    'onnxruntime',
+    'tokenizers',
+    'tqdm',
+    'tenacity',
     'pdfplumber',
     'docx',
     'pptx',
@@ -80,6 +98,10 @@ hidden_imports = [
     'backend.agents.orchestrator',
 ]
 
+# Collect all chromadb submodules to ensure pkgutil.iter_modules works
+hidden_imports += collect_submodules('chromadb')
+hidden_imports += collect_submodules('onnxruntime')
+
 # Collect data files needed at runtime
 datas = [
     # Tiktoken encoding files
@@ -96,6 +118,16 @@ try:
 except Exception:
     pass
 
+try:
+    datas += collect_data_files('onnxruntime')
+except Exception:
+    pass
+
+try:
+    datas += collect_data_files('tokenizers')
+except Exception:
+    pass
+
 a = Analysis(
     ['run_backend.py'],
     pathex=[os.path.dirname(os.path.abspath('__file__'))],
@@ -104,7 +136,7 @@ a = Analysis(
     hiddenimports=hidden_imports,
     hookspath=[],
     hooksconfig={},
-    runtime_hooks=[],
+    runtime_hooks=['hooks/runtime_hook_chromadb.py'],
     excludes=[
         'matplotlib',
         'scipy',
