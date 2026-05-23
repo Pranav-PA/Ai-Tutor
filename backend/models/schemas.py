@@ -235,6 +235,8 @@ class SettingsUpdate(BaseModel):
     gemini_api_key: Optional[str] = None
     preferred_provider: Optional[str] = None
     theme: Optional[str] = None
+    ollama_base_url: Optional[str] = None
+    ollama_model: Optional[str] = None
 
 
 class SettingsResponse(BaseModel):
@@ -242,3 +244,5 @@ class SettingsResponse(BaseModel):
     has_gemini_key: bool
     preferred_provider: str
     theme: str
+    ollama_available: bool = False
+    ollama_model: Optional[str] = None

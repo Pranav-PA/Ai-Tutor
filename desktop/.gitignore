@@ -1,0 +1,19 @@
+# Generated build outputs
+frontend-dist/
+backend-dist/
+release/
+dist/
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Env files
+.env
+.env.local

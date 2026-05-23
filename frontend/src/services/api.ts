@@ -1,7 +1,19 @@
-/* API service layer */
-const API_BASE = '/api';
+/* API service layer - supports both browser and Electron desktop app */
+import { getApiBaseSync, resolveApiBase, isElectron } from '@/lib/desktop-api';
+
+let API_BASE = getApiBaseSync();
+
+// Resolve actual API base URL (async)
+if (typeof window !== 'undefined') {
+  resolveApiBase().then(url => { API_BASE = url; });
+}
 
 async function fetchAPI(endpoint: string, options: RequestInit = {}) {
+  // Ensure we have the resolved base URL in Electron
+  if (isElectron && API_BASE === '/api') {
+    API_BASE = await resolveApiBase();
+  }
+  
   const url = `${API_BASE}${endpoint}`;
   const response = await fetch(url, {
     headers: {
@@ -32,6 +44,9 @@ export const courseAPI = {
 export const documentAPI = {
   getAll: (courseId: number) => fetchAPI(`/documents/${courseId}`),
   upload: async (courseId: number, file: File, documentTag: string) => {
+    if (isElectron && API_BASE === '/api') {
+      API_BASE = await resolveApiBase();
+    }
     const formData = new FormData();
     formData.append('file', file);
     formData.append('course_id', courseId.toString());
@@ -52,6 +67,9 @@ export const chatAPI = {
     fetchAPI('/chat', { method: 'POST', body: JSON.stringify(data) }),
   
   stream: async function* (data: { content: string; mode: string; course_id: number }) {
+    if (isElectron && API_BASE === '/api') {
+      API_BASE = await resolveApiBase();
+    }
     const response = await fetch(`${API_BASE}/chat/stream`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
