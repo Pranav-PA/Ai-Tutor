@@ -65,13 +65,6 @@ def health_check():
     return {"status": "healthy", "version": "1.0.0"}
 
 
-# Serve frontend static files in desktop/production mode
-if os.getenv("DESKTOP_MODE") == "true":
-    frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend-dist")
-    if os.path.exists(frontend_dir):
-        app.mount("/app", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host=HOST, port=PORT, reload=True)

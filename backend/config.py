@@ -1,24 +1,14 @@
 """Configuration management for AI Semester Companion."""
 import os
-import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file
+# Load .env file from project root
 load_dotenv()
 
-# Base paths - support bundled mode (PyInstaller) and desktop app
-if getattr(sys, 'frozen', False):
-    BASE_DIR = Path(sys.executable).parent
-else:
-    BASE_DIR = Path(__file__).parent.parent
-
-# Allow APP_DATA_DIR override from environment (used by desktop app)
-_app_data_env = os.getenv("APP_DATA_DIR")
-if _app_data_env:
-    APP_DATA_DIR = Path(_app_data_env)
-else:
-    APP_DATA_DIR = BASE_DIR / "app-data"
+# Base paths
+BASE_DIR = Path(__file__).parent.parent
+APP_DATA_DIR = BASE_DIR / "app-data"
 
 UPLOADS_DIR = APP_DATA_DIR / "uploads"
 VECTORS_DIR = APP_DATA_DIR / "vectors"
@@ -63,10 +53,4 @@ CORS_ORIGINS = [
     "http://127.0.0.1:38173",
     "http://localhost:18080",
     "http://127.0.0.1:18080",
-    "file://",  # Electron file:// protocol
-    "app://.",  # Electron custom protocol
 ]
-
-# Allow all origins in desktop mode for flexibility
-if os.getenv("DESKTOP_MODE") == "true":
-    CORS_ORIGINS = ["*"]

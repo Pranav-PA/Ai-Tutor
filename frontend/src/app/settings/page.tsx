@@ -53,22 +53,11 @@ export default function SettingsPage() {
   const checkOllamaConnection = async () => {
     setCheckingOllama(true);
     try {
-      // Check via Electron API if available, otherwise via backend
-      if (typeof window !== 'undefined' && (window as any).electronAPI) {
-        const status = await (window as any).electronAPI.checkOllamaStatus();
-        setOllamaStatus(status);
-      } else {
-        // Fallback: check via backend API
-        try {
-          const response = await fetch('/api/settings/providers');
-          const data = await response.json();
-          const ollamaProvider = data.providers?.find((p: any) => p.id === 'ollama');
-          if (ollamaProvider) {
-            setOllamaStatus({ available: ollamaProvider.available, models: ollamaProvider.models || [] });
-          }
-        } catch {
-          setOllamaStatus({ available: false, models: [] });
-        }
+      const response = await fetch('/api/settings/providers');
+      const data = await response.json();
+      const ollamaProvider = data.providers?.find((p: any) => p.id === 'ollama');
+      if (ollamaProvider) {
+        setOllamaStatus({ available: ollamaProvider.available, models: ollamaProvider.models || [] });
       }
     } catch {
       setOllamaStatus({ available: false, models: [] });
@@ -86,17 +75,6 @@ export default function SettingsPage() {
         updates.ollama_model = ollamaModel;
       }
       await settingsAPI.update(updates);
-
-      // Also save to Electron store if available
-      if (typeof window !== 'undefined' && (window as any).electronAPI) {
-        await (window as any).electronAPI.saveSettings({
-          aiProvider: provider,
-          ollamaUrl,
-          ollamaModel,
-          openaiApiKey: openaiKey || undefined,
-          geminiApiKey: geminiKey || undefined,
-        });
-      }
 
       if (name || learningStyle) {
         await settingsAPI.updateProfile({ name, learning_style: learningStyle });

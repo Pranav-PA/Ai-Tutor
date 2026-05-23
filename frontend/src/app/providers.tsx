@@ -3,9 +3,7 @@
 import { ThemeProvider } from 'next-themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { useState, useEffect } from 'react';
-import { UpdateNotification } from '@/components/UpdateNotification';
-import { SetupWizard } from '@/components/SetupWizard';
+import { useState } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -17,22 +15,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       })
   );
 
-  const [showSetup, setShowSetup] = useState(false);
-
-  useEffect(() => {
-    // Show setup wizard on first run
-    if (typeof window !== 'undefined') {
-      const onboardingDone = localStorage.getItem('onboarding-complete');
-      if (!onboardingDone) {
-        setShowSetup(true);
-      }
-    }
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem themes={['light', 'dark', 'amoled']}>
-        {showSetup && <SetupWizard onComplete={() => setShowSetup(false)} />}
         {children}
         <Toaster
           position="bottom-right"
@@ -45,7 +30,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
             },
           }}
         />
-        <UpdateNotification />
       </ThemeProvider>
     </QueryClientProvider>
   );

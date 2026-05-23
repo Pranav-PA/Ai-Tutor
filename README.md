@@ -1,426 +1,190 @@
-# AI Semester Companion 🎓🤖
+# AI Semester Companion
 
-> Your Personal AI-Powered Tutor for Every Semester
+An AI-powered personalized study companion that helps you learn course material through intelligent chat, quizzes, flashcards, revision notes, and study planning.
 
-A full-stack AI tutoring application that acts as a personalized semester companion. Upload your notes, get personalized teaching, smart quizzes, revision plans, and exam preparation — all powered by AI that learns YOUR material.
+## Features
 
-![AI Semester Companion](https://img.shields.io/badge/AI-Semester_Companion-6366f1?style=for-the-badge)
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square)
-![Python](https://img.shields.io/badge/Python-3.11+-blue?style=flat-square)
+- **Document Upload** – Upload PDFs, DOCX, PPTX, TXT files; auto-indexed into a vector store for retrieval
+- **AI Chat** – Context-aware teaching, doubt-clearing, and concept explanation using your uploaded materials
+- **Quiz Generation** – AI generates MCQ/short-answer quizzes based on your course content
+- **Revision Notes** – Auto-generated summaries and revision material
+- **Flashcards** – Spaced-repetition flashcard system
+- **Study Planner** – Personalized study schedule generator
+- **Analytics** – Track progress and study patterns
 
----
+## Tech Stack
 
-## ✨ Features
-
-### 🧠 Multi-Agent AI System
-- **Teaching Agent** — Explains concepts with step-by-step lessons
-- **Quiz Agent** — Generates MCQs, short answers, numerical problems
-- **Revision Agent** — Creates cheat sheets, formula sheets, quick notes
-- **Memory Agent** — Tracks weak/strong topics, adapts difficulty
-- **Analytics Agent** — Provides study insights and readiness scores
-- **Question Paper Agent** — Generates model papers based on patterns
-
-### 📚 Smart Document Processing
-- Upload PDFs, DOCX, PPTX, TXT, images
-- OCR support for handwritten notes
-- Automatic chunking and vector embedding
-- RAG-powered answers from YOUR notes
-
-### 🎯 Adaptive Learning
-- Identifies weak topics automatically
-- Increases practice in struggling areas
-- Spaced repetition flashcards (SM-2 algorithm)
-- Confidence tracking per topic
-
-### 📊 Analytics Dashboard
-- Syllabus completion tracking
-- Quiz accuracy trends
-- AI Exam Readiness Score
-- Study hour tracking & revision streaks
-
-### 🎨 Premium UI
-- Modern glassmorphism design
-- Dark/Light/AMOLED themes
-- Smooth Framer Motion animations
-- Responsive (mobile/tablet/desktop)
-- Command palette (Cmd+K)
+| Layer | Technology |
+|-------|-----------|
+| Backend | Python 3.10+, FastAPI, SQLAlchemy, ChromaDB |
+| Frontend | Next.js 15, React 18, Tailwind CSS, Radix UI |
+| AI | OpenAI GPT-4o / Google Gemini |
+| Vector DB | ChromaDB (local, file-based) |
 
 ---
 
-## 🏗️ Architecture
-
-```
-┌─────────────────────────────────────────────┐
-│                 Frontend                      │
-│          (Next.js + TypeScript)              │
-│     TailwindCSS + shadcn/ui + Framer        │
-└─────────────────┬───────────────────────────┘
-                  │ API Calls
-┌─────────────────▼───────────────────────────┐
-│              Backend (FastAPI)                │
-│                                              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
-│  │ Teaching │  │   Quiz   │  │ Revision │  │
-│  │  Agent   │  │  Agent   │  │  Agent   │  │
-│  └──────────┘  └──────────┘  └──────────┘  │
-│                                              │
-│  ┌──────────────────────────────────────┐   │
-│  │         RAG System (ChromaDB)         │   │
-│  └──────────────────────────────────────┘   │
-│                                              │
-│  ┌──────────┐  ┌──────────┐                 │
-│  │ SQLite   │  │  OpenAI  │                 │
-│  │   DB     │  │ / Gemini │                 │
-│  └──────────┘  └──────────┘                 │
-└─────────────────────────────────────────────┘
-```
-
----
-
-## 🚀 Quick Start
+## Quick Start (5 minutes)
 
 ### Prerequisites
-- **Node.js** 18+ (with npm)
-- **Python** 3.11+ (or 3.13 recommended)
-- **OpenAI** or **Google Gemini** API key (or both)
 
-### Quick Start (Recommended) ⚡
+- **Python 3.10+** (`python3 --version`)
+- **Node.js 18+** (`node --version`)
+- **npm** (`npm --version`)
+- An **OpenAI API key** or **Google Gemini API key**
 
-The easiest way to set up and run the entire application:
+### 1. Clone the repo
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/Ai-Semister-Companion.git
-cd Ai-Semister-Companion
-
-# Make scripts executable
-chmod +x setup-and-run.sh run.sh
-
-# One command to setup and run everything!
-./setup-and-run.sh
+git clone https://github.com/Pranav-PA/Ai-Tutor.git
+cd Ai-Tutor
 ```
 
-The script will:
-- ✅ Check all prerequisites
-- ✅ Create Python virtual environment (if needed)
-- ✅ Install all Python dependencies
-- ✅ Install all npm packages
-- ✅ Build the Next.js frontend
-- ✅ Start both backend and frontend automatically
+### 2. Setup Python backend
 
-**Backend** runs at: http://localhost:18080  
-**Frontend** runs at: http://localhost:38173  
-**API Docs** available at: http://localhost:18080/docs
-
----
-
-### Manual Setup (Alternative)
-
-If you prefer manual control or need to troubleshoot:
-
-#### 1. Backend Setup
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/Ai-Semister-Companion.git
-cd Ai-Semister-Companion
-
 # Create virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Activate it
+# Linux/macOS:
+source venv/bin/activate
+# Windows:
+venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-#### 2. Frontend Setup
+### 3. Configure environment
+
+```bash
+# Copy example env file
+cp .env.example .env
+
+# Edit .env and add your API key
+# (use any text editor)
+nano .env
+```
+
+Set at minimum:
+```
+OPENAI_API_KEY=sk-your-key-here
+DEFAULT_PROVIDER=openai
+```
+
+Or for Gemini:
+```
+GEMINI_API_KEY=your-gemini-key
+DEFAULT_PROVIDER=gemini
+```
+
+### 4. Setup Frontend
+
 ```bash
 cd frontend
 npm install
-npm run build  # Optional: Pre-build for production
+cd ..
 ```
 
-#### 3. Environment Configuration
-```bash
-# Copy environment template
-cp .env.example .env
+### 5. Run the application
 
-# Edit .env with your API keys
-# Windows: notepad .env
-# Mac/Linux: nano .env
+You need **two terminals** (or use `&` on Linux):
+
+**Terminal 1 – Backend:**
+```bash
+source venv/bin/activate   # or venv\Scripts\activate on Windows
+python -m uvicorn backend.main:app --host 127.0.0.1 --port 18080 --reload
 ```
 
-#### 4. Run the Application
-
-**Option A: Run Both Services (using run script)**
+**Terminal 2 – Frontend:**
 ```bash
-cd /path/to/Ai-Semister-Companion
-./run.sh
-```
-
-**Option B: Run Separately in Different Terminals**
-
-Terminal 1 (Backend):
-```bash
-cd Ai-Semister-Companion
-source venv/bin/activate  # Windows: venv\Scripts\activate
-python -m backend.main
-```
-Backend: http://localhost:18080
-
-Terminal 2 (Frontend):
-```bash
-cd Ai-Semister-Companion/frontend
+cd frontend
 npm run dev
 ```
-Frontend: http://localhost:38173
+
+### 6. Open the app
+
+Open your browser and go to: **http://localhost:38173**
 
 ---
 
-## ⚙️ Configuration
+## Usage Guide
 
-### Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-# AI Provider (choose one or both)
-OPENAI_API_KEY=sk-your-key-here
-GEMINI_API_KEY=AIza-your-key-here
-
-# Default provider (openai or gemini)
-DEFAULT_PROVIDER=openai
-
-# Models (optional)
-OPENAI_MODEL=gpt-4o
-GEMINI_MODEL=gemini-1.5-pro
-
-# Server
-HOST=0.0.0.0
-PORT=18080
-```
-
-You can also configure API keys from the Settings page in the UI.
+1. **Create a course** – Click "New Course" and give it a name (e.g., "Machine Learning")
+2. **Upload materials** – Go into the course, click "Upload" and drop your PDF/DOCX files
+3. **Chat with AI** – Ask questions about your material; the AI uses your uploaded docs as context
+4. **Generate quizzes** – Go to the Quiz tab, select topic/difficulty, and test yourself
+5. **Review flashcards** – Spaced repetition cards are auto-generated from your content
+6. **Plan study sessions** – Set exam dates and hours per day to get a personalized schedule
 
 ---
 
-## � Setup Scripts Reference
-
-### `setup-and-run.sh` — Complete Setup & Start
-Automates everything: prerequisites check, dependency installation, and service startup.
-
-```bash
-# Full setup and run both services
-./setup-and-run.sh
-
-# Setup only (install dependencies, don't start services)
-./setup-and-run.sh --setup-only
-
-# Skip Next.js build, use dev server only
-./setup-and-run.sh --no-build
-```
-
-### `run.sh` — Start Services (After Setup)
-Quick script to start both backend and frontend after dependencies are installed.
-
-```bash
-./run.sh
-```
-
-**What these scripts do:**
-- ✅ Verify Python and Node.js are installed
-- ✅ Activate Python virtual environment
-- ✅ Install all dependencies from requirements.txt
-- ✅ Install all npm packages
-- ✅ Build frontend (if not using `--no-build`)
-- ✅ Start backend on port 18080
-- ✅ Start frontend on port 38173
-- ✅ Display service URLs and log locations
-
----
-
-## 🔧 Troubleshooting
-
-### Port Already in Use
-If you get "Address already in use" error:
-```bash
-# Kill processes on port 18080 (backend)
-lsof -ti :18080 | xargs kill -9
-
-# Kill processes on port 38173 (frontend)
-lsof -ti :38173 | xargs kill -9
-
-# On Windows, use:
-# netstat -ano | findstr :18080
-# taskkill /PID <PID> /F
-```
-
-### Python Version Issues
-The application requires Python 3.11+. Check your version:
-```bash
-python3 --version
-```
-
-If you have multiple Python versions, specify explicitly:
-```bash
-python3.13 -m venv venv
-```
-
-### Virtual Environment Not Activating
-```bash
-# Linux/Mac
-source venv/bin/activate
-
-# Windows
-venv\Scripts\activate
-
-# Verify activation (should show (venv) in terminal)
-which python  # Should show path in venv/
-```
-
-### npm install Failures
-Clear npm cache and reinstall:
-```bash
-cd frontend
-npm cache clean --force
-rm -rf node_modules package-lock.json
-npm install --legacy-peer-deps
-```
-
-### Backend Import Errors
-Verify backend can be imported:
-```bash
-source venv/bin/activate
-python3 -c "from backend.main import app; print('✓ Backend imports successfully')"
-```
-
-### Frontend Build Failures
-Clear Next.js cache and rebuild:
-```bash
-cd frontend
-rm -rf .next
-npm run build
-```
-
-### API Connection Issues
-Verify both services are running:
-```bash
-# Check backend
-curl http://localhost:18080/api/health
-
-# Check frontend
-curl http://localhost:38173
-```
-
----
-
-
+## Project Structure
 
 ```
-Ai-Semister-Companion/
+├── requirements.txt        # Python dependencies (install with pip)
+├── .env.example            # Template for environment variables
+├── .env                    # Your local config (not committed)
+├── app-data/               # Runtime data (uploads, vector DB, etc.)
 ├── backend/
-│   ├── agents/          # Multi-agent system (orchestrator, prompts)
-│   ├── rag/             # Vector store & RAG system
-│   ├── parsers/         # Document parsing (PDF, DOCX, PPTX, OCR)
-│   ├── database/        # SQLAlchemy models & connection
-│   ├── routes/          # API endpoints
-│   ├── services/        # AI provider service
-│   ├── models/          # Pydantic schemas
-│   ├── config.py        # Configuration
-│   └── main.py          # FastAPI application
+│   ├── main.py             # FastAPI app entry point
+│   ├── config.py           # Configuration (reads .env)
+│   ├── routes/             # API endpoints
+│   ├── services/           # AI provider logic
+│   ├── database/           # SQLAlchemy models & connection
+│   ├── rag/                # Vector store (ChromaDB)
+│   ├── parsers/            # Document parsing (PDF, DOCX, etc.)
+│   ├── agents/             # AI agent orchestration
+│   └── models/             # Pydantic schemas
 ├── frontend/
+│   ├── package.json        # Node.js dependencies
+│   ├── next.config.js      # Next.js config (proxies /api to backend)
 │   └── src/
-│       ├── app/         # Next.js App Router pages
-│       ├── components/  # React components
-│       ├── services/    # API client
-│       ├── store/       # Zustand state management
-│       ├── types/       # TypeScript types
-│       └── styles/      # Global styles
-├── app-data/            # Local data storage
-│   ├── uploads/         # Uploaded files
-│   ├── vectors/         # ChromaDB vectors
-│   └── ...
-├── requirements.txt     # Python dependencies
-└── .env.example         # Environment template
+│       ├── app/            # Pages (Next.js App Router)
+│       ├── components/     # Reusable UI components
+│       ├── services/       # API client functions
+│       └── store/          # State management (Zustand)
 ```
 
 ---
 
-## 🎯 Usage Guide
-
-1. **Create a Course** — Add your course name, semester, exam date
-2. **Upload Materials** — Drag & drop PDFs, notes, slides
-3. **Learn** — Ask the AI to teach you any topic
-4. **Chat** — Have conversations about your course material
-5. **Quiz** — Generate and take adaptive quizzes
-6. **Revision** — Generate cheat sheets and flashcards
-7. **Track Progress** — View analytics and readiness scores
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 14, TypeScript, TailwindCSS |
-| UI Components | Radix UI, Framer Motion, Lucide Icons |
-| State | Zustand, React Query |
-| Backend | FastAPI, Python 3.11+ |
-| Database | SQLite + SQLAlchemy |
-| Vector DB | ChromaDB |
-| AI | OpenAI GPT-4o / Google Gemini 1.5 Pro |
-| Document Processing | pdfplumber, python-docx, python-pptx, Tesseract OCR |
-
----
-
-## 📜 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/courses` | Create course |
-| GET | `/api/courses` | List courses |
-| GET | `/api/courses/{id}` | Get course |
-| DELETE | `/api/courses/{id}` | Delete course |
-| POST | `/api/documents/upload` | Upload document |
-| GET | `/api/documents/{courseId}` | List documents |
-| POST | `/api/chat/stream` | Chat (streaming) |
-| POST | `/api/chat` | Chat (non-streaming) |
-| POST | `/api/quiz/generate` | Generate quiz |
-| POST | `/api/quiz/submit` | Submit quiz |
-| POST | `/api/revision/generate` | Generate revision |
-| POST | `/api/revision/flashcards/generate` | Generate flashcards |
-| GET | `/api/analytics/{courseId}` | Get analytics |
-| GET | `/api/settings` | Get settings |
-| PUT | `/api/settings` | Update settings |
+| GET | `/api/health` | Health check |
+| GET/POST | `/api/courses` | List / Create courses |
+| POST | `/api/documents/upload` | Upload a document |
+| POST | `/api/chat` | Send a chat message |
+| POST | `/api/chat/stream` | Stream a chat response (SSE) |
+| POST | `/api/quiz/generate` | Generate a quiz |
+| POST | `/api/revision/generate` | Generate revision notes |
+| POST | `/api/planner/generate` | Generate study plan |
+| GET | `/api/analytics/{course_id}` | Get course analytics |
 
 ---
 
-## 🔒 Security
+## Troubleshooting
 
-- All data stored locally — no cloud dependency
-- API keys stored in environment variables or local settings
-- File upload size limits (50MB)
-- Extension whitelist for uploads
-- Input sanitization
-
----
-
-## 🚧 Future Roadmap
-
-- [ ] Ollama local model support
-- [ ] Collaborative study rooms
-- [ ] Mobile app (React Native)
-- [ ] Cloud sync (optional)
-- [ ] LMS integration
-- [ ] Voice input/output
-- [ ] Export to PDF/Markdown
+| Problem | Fix |
+|---------|-----|
+| `ModuleNotFoundError` | Make sure venv is activated: `source venv/bin/activate` |
+| Frontend can't reach backend | Ensure backend is running on port 18080 |
+| Upload fails | Check `app-data/uploads/` directory exists (auto-created on startup) |
+| OpenAI errors | Verify your API key in `.env` and that you have credits |
+| Port already in use | Kill the process: `lsof -ti:18080 | xargs kill` |
 
 ---
 
-## 📄 License
+## Development Notes
 
-MIT License — feel free to use, modify, and distribute.
+- Backend runs on `http://127.0.0.1:18080`
+- Frontend runs on `http://localhost:38173`
+- Next.js proxies all `/api/*` requests to the backend automatically
+- The vector database (ChromaDB) persists to `app-data/vectors/`
+- Uploaded files are stored in `app-data/uploads/`
+- SQLite database is auto-created at startup
 
----
+## License
 
-Built with ❤️ for students everywhere.
+MIT
